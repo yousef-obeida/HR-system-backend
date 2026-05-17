@@ -9,3 +9,9 @@
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+
+# Tell GitHub to completely ignore Blade files in this repo
+*.blade.php linguist-detectable=false
+
+# If you have public build files or docs skewing stats, vendor them out:
+public/* linguist-vendored
