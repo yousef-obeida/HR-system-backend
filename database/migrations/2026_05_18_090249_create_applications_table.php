@@ -10,10 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('application', function (Blueprint $table) {
+        Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('candidate_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('job_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('job_post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('stage_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamp('applied_at')->useCurrent();
             $table->enum('status', ['active', 'rejected'])->default('active');
@@ -26,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('application');
+        Schema::dropIfExists('applications');
     }
 };
