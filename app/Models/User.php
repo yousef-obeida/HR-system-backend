@@ -18,9 +18,9 @@ class User extends Authenticatable
 
     use HasApiTokens;
 
-    #[Fillable(['name', 'email', 'password'])]
+    #[Fillable(['name', 'email', 'password', 'role'])]
     #[Hidden(['password', 'remember_token'])]
-    
+
     /**
      * Get the attributes that should be cast.
      *
@@ -34,7 +34,7 @@ class User extends Authenticatable
         ];
     }
     public function interviews()
-{
-    return $this->hasMany(Interview::class, 'interviewer_id');
-}
+    {
+        return $this->hasMany(Interview::class, 'interviewer_id');
+    }
 }
