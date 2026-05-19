@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
+    protected $fillable = [
+        'candidate_id',
+        'job_post_id',
+        'stage_id',
+        'status',
+    ];
+
     public function candidate()
     {
         return $this->belongsTo(Candidate::class);
@@ -27,9 +34,9 @@ class Application extends Model
     }
 
     public function interviews()
-{
-    return $this->hasMany(Interview::class);
-}
+    {
+        return $this->hasMany(Interview::class);
+    }
 
 }
 
