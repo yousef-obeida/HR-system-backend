@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->foreignId('job_post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('stage_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamp('applied_at')->useCurrent();
-            $table->enum('status', ['active', 'rejected'])->default('active');
+            $table->enum('status', ['active', 'rejected', 'hired'])->default('active');
             $table->timestamps();
         });
     }

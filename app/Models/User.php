@@ -14,9 +14,9 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
-    use HasApiTokens;
+    protected $primaryKey = 'user_id';
 
     #[Fillable(['name', 'email', 'password', 'role'])]
     #[Hidden(['password', 'remember_token'])]
