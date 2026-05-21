@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Interview;
 use Illuminate\Http\Request;
+use App\Http\Requests\Interview\StoreInterviewRequest;
+use App\Http\Requests\Interview\UpdateInterviewRequest;
 
 class InterviewController extends Controller
 {
@@ -20,15 +22,9 @@ class InterviewController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreInterviewRequest $request)
     {
-        $validated = $request->validate([
-            'application_id' => 'required|exists:applications,id',
-            'date' => 'required|date',
-            'time' => 'required',
-            'interviewer' => 'required|string',
-            'type' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
         $interview = Interview::create(array_merge($validated, ['status' => 'scheduled']));
 
@@ -47,16 +43,11 @@ class InterviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateInterviewRequest $request, string $id)
     {
         $interview = Interview::findOrFail($id);
 
-        $validated = $request->validate([
-            'date' => 'sometimes|date',
-            'time' => 'sometimes',
-            'interviewer' => 'sometimes|string',
-            'type' => 'sometimes|string',
-        ]);
+        $validated = $request->validated();
 
         $interview->update($validated);
 

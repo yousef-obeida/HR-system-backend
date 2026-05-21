@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Stage;
 use App\Models\Application;
 use Illuminate\Http\Request;
+use App\Http\Requests\Stage\MoveApplicationRequest;
 
 class StageController extends Controller
 {
@@ -53,13 +54,11 @@ class StageController extends Controller
     /**
      * Move candidate application to a new stage.
      */
-    public function moveApplication(Request $request, string $id)
+    public function moveApplication(MoveApplicationRequest $request, string $id)
     {
         $application = Application::findOrFail($id);
 
-        $validated = $request->validate([
-            'stage_id' => 'required|exists:stages,id'
-        ]);
+        $validated = $request->validated();
 
         $application->update([
             'stage_id' => $validated['stage_id']

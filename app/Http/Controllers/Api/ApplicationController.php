@@ -7,18 +7,13 @@ use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Stage;
 use Illuminate\Http\Request;
+use App\Http\Requests\Application\StoreApplicationRequest;
 
 class ApplicationController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreApplicationRequest $request)
     {
-        $validatedData = $request->validate([
-            'job_post_id' => 'required|exists:job_posts,id',
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone_number' => 'required|string|max:20',
-            'cv_path' => 'nullable|string', // Consider changing to 'file|mimes:pdf,doc,docx' when implementing file uploads
-        ]);
+        $validatedData = $request->validated();
 
         // Save or find Candidate
         $candidate = Candidate::firstOrCreate(

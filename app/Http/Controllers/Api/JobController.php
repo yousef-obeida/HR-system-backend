@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Job;
 use Illuminate\Http\Request;
+use App\Http\Requests\Job\StoreJobRequest;
+use App\Http\Requests\Job\UpdateJobRequest;
 
 class JobController extends Controller
 {
@@ -24,16 +26,9 @@ class JobController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreJobRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'requirments' => 'required|string',
-            'status' => 'required|in:open,closed',
-            'Location' => 'required|in:onsite,remote,hybrid',
-            'salary' => 'nullable|integer'
-        ]);
+        $validatedData = $request->validated();
 
         $job = Job::create($validatedData);
 
@@ -67,7 +62,7 @@ class JobController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateJobRequest $request, string $id)
     {
         $job = Job::find($id);
 
@@ -78,14 +73,7 @@ class JobController extends Controller
             ], 404);
         }
 
-        $validatedData = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'requirments' => 'sometimes|required|string',
-            'status' => 'sometimes|required|in:open,closed',
-            'Location' => 'sometimes|required|in:onsite,remote,hybrid',
-            'salary' => 'nullable|integer'
-        ]);
+        $validatedData = $request->validated();
 
         $job->update($validatedData);
 
