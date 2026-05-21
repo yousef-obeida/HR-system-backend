@@ -8,6 +8,7 @@ use App\Models\Candidate;
 use App\Models\Stage;
 use Illuminate\Http\Request;
 use App\Http\Requests\Application\StoreApplicationRequest;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
@@ -15,15 +16,32 @@ class ApplicationController extends Controller
     {
         $validatedData = $request->validated();
 
-        // Save or find Candidate
-        $candidate = Candidate::firstOrCreate(
-            ['email' => $validatedData['email']],
-            [
+        $path = null;
+        if ($request->hasFile('cv')) {
+            $path = $request->file('cv')->store('cvs', 'public');
+        }
+
+        // Find or create Candidate
+        $candidate = Candidate::where('email', $validatedData['email'])->first();
+        if ($candidate) {
+            // Delete the old CV if it exists
+            if ($candidate->cv_path) {
+                Storage::disk('public')->delete($candidate->cv_path);
+            }
+            
+            $candidate->update([
                 'full_name' => $validatedData['full_name'],
                 'phone_number' => $validatedData['phone_number'],
-                'cv_path' => $validatedData['cv_path'] ?? 'path/to/default/cv',
-            ]
-        );
+                'cv_path' => $path,
+            ]);
+        } else {
+            $candidate = Candidate::create([
+                'email' => $validatedData['email'],
+                'full_name' => $validatedData['full_name'],
+                'phone_number' => $validatedData['phone_number'],
+                'cv_path' => $path,
+            ]);
+        }
 
         // Assign 'Applied' Stage
         $stage = Stage::firstOrCreate(

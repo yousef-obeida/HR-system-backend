@@ -24,7 +24,7 @@ class StoreApplicationRequest extends FormRequest
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone_number' => 'required|string|max:20',
-            'cv_path' => 'nullable|string', // Consider changing to 'file|mimes:pdf,doc,docx' when implementing file uploads
+            'cv' => 'required|file|mimes:pdf|max:2048'
         ];
     }
 }

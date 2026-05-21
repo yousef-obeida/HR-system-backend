@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Candidate;
 
 class CandidateController extends Controller
 {
@@ -12,7 +14,7 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = \App\Models\Candidate::with(['applications.stage', 'applications.interviews'])->get();
+        $candidates = Candidate::with(['applications.stage', 'applications.interviews'])->get();
         return response()->json($candidates);
     }
 
@@ -38,7 +40,33 @@ class CandidateController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $candidate = Candidate::findOrFail($id);
+
+        $validatedData = $request->validate([
+            'full_name' => 'sometimes|required|string|max:255',
+            'phone_number' => 'sometimes|required|string|max:20',
+            'cv' => 'sometimes|file|mimes:pdf|max:2048'
+        ]);
+
+        if ($request->hasFile('cv')) {
+            // Delete the old CV if it exists
+            if ($candidate->cv_path) {
+                Storage::disk('public')->delete($candidate->cv_path);
+            }
+
+            // Store the new CV and update the validated data array
+            $validatedData['cv_path'] = $request->file('cv')->store('cvs', 'public');
+        }
+
+        unset($validatedData['cv']);
+
+        $candidate->update($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Candidate updated successfully',
+            'data' => $candidate
+        ]);
     }
 
     /**

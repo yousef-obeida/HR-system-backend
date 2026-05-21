@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum,role:admin')->group(function () {
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
     Route::apiResource('candidates', CandidateController::class);
@@ -42,7 +42,7 @@ Route::middleware('auth:sanctum,role:admin')->group(function () {
     Route::apiResource('users', \App\Http\Controllers\UserController::class);
 });
 
-Route::middleware('auth:sanctum,role:hr')->group(function () {
+Route::middleware(['auth:sanctum', 'role:hr'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
     Route::apiResource('candidates', CandidateController::class);
@@ -52,8 +52,7 @@ Route::middleware('auth:sanctum,role:hr')->group(function () {
 });
 
 
-Route::middleware('auth:sanctum,role:candidate')->group(function () {
-    Route::post('/apply/{job}', [ApplicationController::class, 'store']);
-    Route::get('/candidates/{id}', [ApplicationController::class,'index']);
-});
+Route::post('/apply/{job}', [ApplicationController::class, 'store']);
+
+
 
