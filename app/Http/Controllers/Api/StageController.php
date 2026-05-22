@@ -19,41 +19,6 @@ class StageController extends Controller
         return response()->json($stages);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-    /**
-     * Move candidate application to a new stage.
-     */
     public function moveApplication(MoveApplicationRequest $request, string $id)
     {
         $application = Application::findOrFail($id);

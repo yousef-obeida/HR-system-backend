@@ -12,9 +12,49 @@ use Illuminate\Support\Facades\Storage;
 
 class ApplicationController extends Controller
 {
-    public function store(StoreApplicationRequest $request)
+    /**
+     * Show the application form data with available open jobs.
+     * GET /api/apply
+     */
+    public function create()
+    {
+        $jobs = \App\Models\Job::where('status', 'open')
+            ->get(['id', 'title']);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'available_jobs' => $jobs,
+                'fields' => [
+                    ['name' => 'job', 'type' => 'select', 'label' => 'Job Position', 'required' => true, 'options' => $jobs],
+                    ['name' => 'full_name', 'type' => 'text', 'label' => 'Full Name', 'required' => true],
+                    ['name' => 'email', 'type' => 'email', 'label' => 'Email', 'required' => true],
+                    ['name' => 'phone_number', 'type' => 'text', 'label' => 'Phone Number', 'required' => true],
+                    ['name' => 'cv', 'type' => 'file', 'label' => 'CV (PDF)', 'required' => true, 'accept' => '.pdf'],
+                ],
+            ]
+        ]);
+    }
+
+    /**
+     * Submit the application form.
+     * POST /api/apply/{job}
+     */
+    public function store(StoreApplicationRequest $request, $job)
     {
         $validatedData = $request->validated();
+
+        // Find the job from the URL parameter and ensure it's open
+        $job = \App\Models\Job::where('id', $job)
+            ->where('status', 'open')
+            ->first();
+
+        if (!$job) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job not found or is no longer open.'
+            ], 404);
+        }
 
         $path = null;
         if ($request->hasFile('cv')) {
@@ -28,7 +68,7 @@ class ApplicationController extends Controller
             if ($candidate->cv_path) {
                 Storage::disk('public')->delete($candidate->cv_path);
             }
-            
+
             $candidate->update([
                 'full_name' => $validatedData['full_name'],
                 'phone_number' => $validatedData['phone_number'],
@@ -52,7 +92,7 @@ class ApplicationController extends Controller
         // Create Application
         $application = Application::create([
             'candidate_id' => $candidate->id,
-            'job_post_id' => $validatedData['job_post_id'],
+            'job_post_id' => $job->id,
             'stage_id' => $stage->id,
             'status' => 'active',
         ]);

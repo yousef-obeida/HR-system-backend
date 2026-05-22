@@ -35,9 +35,8 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
-    Route::apiResource('candidates', CandidateController::class);
-    Route::apiResource('interviews', InterviewController::class);
-    Route::apiResource('stages', StageController::class);
+    Route::apiResource('candidates', CandidateController::class)->except(['show', 'index']);
+    Route::get('stages', [StageController::class, 'index']);
     Route::patch('applications/{id}/move', [StageController::class, 'moveApplication']);
     Route::apiResource('users', \App\Http\Controllers\UserController::class);
 });
@@ -45,14 +44,24 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 Route::middleware(['auth:sanctum', 'role:hr'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
-    Route::apiResource('candidates', CandidateController::class);
+    Route::apiResource('candidates', CandidateController::class)->except(['show', 'index']);
     Route::apiResource('interviews', InterviewController::class);
-    Route::apiResource('stages', StageController::class);
+    Route::get('stages', [StageController::class, 'index']);
     Route::patch('applications/{id}/move', [StageController::class, 'moveApplication']);
 });
 
 
-Route::post('/apply/{job}', [ApplicationController::class, 'store']);
+Route::get('/available-jobs', function () {
+    $jobs = \App\Models\Job::where('status', 'open')
+        ->pluck('title');
 
+    return response()->json([
+        'success' => true,
+        'data' => $jobs
+    ]);
+});
+
+Route::get('/apply', [ApplicationController::class, 'create']);
+Route::post('/apply/{job}', [ApplicationController::class, 'store']);
 
 

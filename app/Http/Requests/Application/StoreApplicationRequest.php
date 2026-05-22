@@ -20,7 +20,6 @@ class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'job_post_id' => 'required|exists:job_posts,id',
             'full_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone_number' => 'required|string|max:20',
