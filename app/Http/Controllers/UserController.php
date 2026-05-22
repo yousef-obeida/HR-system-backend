@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 
@@ -16,12 +17,19 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('viewAny', User::class);
+
             $users = User::all();
 
             return response()->json([
                 'success' => true,
                 'data' => $users
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admins can view the users list.'
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -37,6 +45,8 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         try {
+            $this->authorize('create', User::class);
+
             $validated = $request->validated();
 
             $validated['password'] = Hash::make($validated['password']);
@@ -47,6 +57,11 @@ class UserController extends Controller
                 'message' => 'User created successfully.',
                 'data' => $user
             ], 201);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admins can create users.'
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -71,10 +86,17 @@ class UserController extends Controller
                 ], 404);
             }
 
+            $this->authorize('view', $user);
+
             return response()->json([
                 'success' => true,
                 'data' => $user
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admins can view user details.'
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -99,6 +121,8 @@ class UserController extends Controller
                 ], 404);
             }
 
+            $this->authorize('update', $user);
+
             $validated = $request->validated();
 
             if (isset($validated['password'])) {
@@ -112,6 +136,11 @@ class UserController extends Controller
                 'message' => 'User updated successfully.',
                 'data' => $user
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admins can update users.'
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -136,12 +165,19 @@ class UserController extends Controller
                 ], 404);
             }
 
+            $this->authorize('delete', $user);
+
             $user->delete();
 
             return response()->json([
                 'success' => true,
                 'message' => 'User deleted successfully.'
             ]);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admins can delete users.'
+            ], 403);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
