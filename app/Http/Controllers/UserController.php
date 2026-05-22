@@ -15,8 +15,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::all();
-        return response()->json($users);
+        try {
+            $users = User::all();
+
+            return response()->json([
+                'success' => true,
+                'data' => $users
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve users.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -24,12 +36,24 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $validated['password'] = Hash::make($validated['password']);
-        $user = User::create($validated);
+            $validated['password'] = Hash::make($validated['password']);
+            $user = User::create($validated);
 
-        return response()->json($user, 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully.',
+                'data' => $user
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create user.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -37,8 +61,27 @@ class UserController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
-        return response()->json($user);
+        try {
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve user.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -46,17 +89,36 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::find($id);
 
-        $validated = $request->validated();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
 
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+            $validated = $request->validated();
+
+            if (isset($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            }
+
+            $user->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User updated successfully.',
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update user.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $user->update($validated);
-
-        return response()->json($user);
     }
 
     /**
@@ -64,9 +126,28 @@ class UserController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            $user = User::find($id);
 
-        return response()->json(['message' => 'User deleted successfully']);
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete user.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -26,4 +26,16 @@ class UpdateInterviewRequest extends FormRequest
             'type' => 'sometimes|string',
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'date.date'          => 'Please provide a valid date for the interview.',
+            'interviewer.string' => 'Interviewer name must be a valid text string.',
+            'type.string'        => 'Interview type must be a valid text string.',
+        ];
+    }
 }

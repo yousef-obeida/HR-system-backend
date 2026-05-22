@@ -14,18 +14,47 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = Candidate::with(['applications.stage', 'applications.interviews'])->get();
-        return response()->json($candidates);
-    }
+        try {
+            $candidates = Candidate::with(['applications.stage', 'applications.interviews'])->get();
 
+            return response()->json([
+                'success' => true,
+                'data' => $candidates
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve candidates.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $candidate = \App\Models\Candidate::with(['applications.stage', 'applications.interviews'])->findOrFail($id);
-        return response()->json($candidate);
-    }
+        try {
+            $candidate = Candidate::with(['applications.stage', 'applications.interviews'])->find($id);
 
+            if (!$candidate) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Candidate not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $candidate
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve candidate.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

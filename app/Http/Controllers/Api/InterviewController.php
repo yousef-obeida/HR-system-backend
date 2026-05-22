@@ -15,8 +15,20 @@ class InterviewController extends Controller
      */
     public function index()
     {
-        $interviews = Interview::with('application')->get();
-        return response()->json($interviews);
+        try {
+            $interviews = Interview::with('application')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $interviews
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve interviews.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -24,11 +36,23 @@ class InterviewController extends Controller
      */
     public function store(StoreInterviewRequest $request)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $interview = Interview::create(array_merge($validated, ['status' => 'scheduled']));
+            $interview = Interview::create(array_merge($validated, ['status' => 'scheduled']));
 
-        return response()->json($interview, 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Interview scheduled successfully.',
+                'data' => $interview
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to schedule interview.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -36,8 +60,27 @@ class InterviewController extends Controller
      */
     public function show(string $id)
     {
-        $interview = Interview::with('application')->findOrFail($id);
-        return response()->json($interview);
+        try {
+            $interview = Interview::with('application')->find($id);
+
+            if (!$interview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $interview
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve interview.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -45,13 +88,31 @@ class InterviewController extends Controller
      */
     public function update(UpdateInterviewRequest $request, string $id)
     {
-        $interview = Interview::findOrFail($id);
+        try {
+            $interview = Interview::find($id);
 
-        $validated = $request->validated();
+            if (!$interview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview not found.'
+                ], 404);
+            }
 
-        $interview->update($validated);
+            $validated = $request->validated();
+            $interview->update($validated);
 
-        return response()->json($interview);
+            return response()->json([
+                'success' => true,
+                'message' => 'Interview updated successfully.',
+                'data' => $interview
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update interview.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -59,15 +120,34 @@ class InterviewController extends Controller
      */
     public function destroy(string $id)
     {
-        $interview = Interview::findOrFail($id);
+        try {
+            $interview = Interview::find($id);
 
-        // You can either delete it or mark it as cancelled.
-        // Let's mark as cancelled to keep the record.
-        $interview->update(['status' => 'cancelled']);
+            if (!$interview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview not found.'
+                ], 404);
+            }
 
-        // If hard deletion is preferred instead:
-        // $interview->delete();
+            // You can either delete it or mark it as cancelled.
+            // Let's mark as cancelled to keep the record.
+            $interview->update(['status' => 'cancelled']);
 
-        return response()->json(['message' => 'Interview cancelled successfully', 'interview' => $interview]);
+            // If hard deletion is preferred instead:
+            // $interview->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Interview cancelled successfully.',
+                'data' => $interview
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel interview.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

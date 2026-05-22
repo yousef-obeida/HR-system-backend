@@ -15,12 +15,20 @@ class JobController extends Controller
      */
     public function index()
     {
-        $jobs = Job::all();
+        try {
+            $jobs = Job::all();
 
-        return response()->json([
-            'success' => true,
-            'data' => $jobs
-        ], 200);
+            return response()->json([
+                'success' => true,
+                'data' => $jobs
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve jobs.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -28,15 +36,23 @@ class JobController extends Controller
      */
     public function store(StoreJobRequest $request)
     {
-        $validatedData = $request->validated();
+        try {
+            $validatedData = $request->validated();
 
-        $job = Job::create($validatedData);
+            $job = Job::create($validatedData);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Job created successfully',
-            'data' => $job
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Job created successfully.',
+                'data' => $job
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create job.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -44,19 +60,27 @@ class JobController extends Controller
      */
     public function show(string $id)
     {
-        $job = Job::find($id);
+        try {
+            $job = Job::find($id);
 
-        if (!$job) {
+            if (!$job) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $job
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Job not found'
-            ], 404);
+                'message' => 'Failed to retrieve job.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $job
-        ], 200);
     }
 
     /**
@@ -64,24 +88,31 @@ class JobController extends Controller
      */
     public function update(UpdateJobRequest $request, string $id)
     {
-        $job = Job::find($id);
+        try {
+            $job = Job::find($id);
 
-        if (!$job) {
+            if (!$job) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job not found.'
+                ], 404);
+            }
+
+            $validatedData = $request->validated();
+            $job->update($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Job updated successfully.',
+                'data' => $job
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Job not found'
-            ], 404);
+                'message' => 'Failed to update job.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $validatedData = $request->validated();
-
-        $job->update($validatedData);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Job updated successfully',
-            'data' => $job
-        ], 200);
     }
 
     /**
@@ -89,20 +120,28 @@ class JobController extends Controller
      */
     public function destroy(string $id)
     {
-        $job = Job::find($id);
+        try {
+            $job = Job::find($id);
 
-        if (!$job) {
+            if (!$job) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Job not found.'
+                ], 404);
+            }
+
+            $job->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Job deleted successfully.'
+            ], 200);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Job not found'
-            ], 404);
+                'message' => 'Failed to delete job.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $job->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Job deleted successfully'
-        ], 200);
     }
 }

@@ -15,23 +15,51 @@ class StageController extends Controller
      */
     public function index()
     {
-        $stages = Stage::with('applications.candidate')->get();
-        return response()->json($stages);
+        try {
+            $stages = Stage::with('applications.candidate')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $stages
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve stages.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function moveApplication(MoveApplicationRequest $request, string $id)
     {
-        $application = Application::findOrFail($id);
+        try {
+            $application = Application::find($id);
 
-        $validated = $request->validated();
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found.'
+                ], 404);
+            }
 
-        $application->update([
-            'stage_id' => $validated['stage_id']
-        ]);
+            $validated = $request->validated();
 
-        return response()->json([
-            'message' => 'Application moved successfully',
-            'application' => $application
-        ]);
+            $application->update([
+                'stage_id' => $validated['stage_id']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application moved successfully.',
+                'data' => $application
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to move application.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

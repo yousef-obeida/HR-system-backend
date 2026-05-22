@@ -16,18 +16,29 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $totalJobs = Job::count();
-        $totalCandidates = Candidate::count();
-        $hiredCount = Application::where('status', 'hired')->count();
-        $rejectedCount = Application::where('status', 'rejected')->count();
-        $interviewCount = Interview::count();
+        try {
+            $totalJobs = Job::count();
+            $totalCandidates = Candidate::count();
+            $hiredCount = Application::where('status', 'hired')->count();
+            $rejectedCount = Application::where('status', 'rejected')->count();
+            $interviewCount = Interview::count();
 
-        return response()->json([
-            'total_jobs' => $totalJobs,
-            'total_candidates' => $totalCandidates,
-            'hired_count' => $hiredCount,
-            'rejected_count' => $rejectedCount,
-            'interview_count' => $interviewCount,
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_jobs' => $totalJobs,
+                    'total_candidates' => $totalCandidates,
+                    'hired_count' => $hiredCount,
+                    'rejected_count' => $rejectedCount,
+                    'interview_count' => $interviewCount,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load dashboard statistics.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
