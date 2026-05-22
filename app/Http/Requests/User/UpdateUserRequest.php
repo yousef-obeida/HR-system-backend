@@ -31,4 +31,25 @@ class UpdateUserRequest extends FormRequest
             'role' => ['sometimes', Rule::in(['admin', 'hr'])],
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.string' => 'User name must be a valid text string.',
+            'name.max'    => 'User name must not exceed 255 characters.',
+
+            'email.string' => 'Email must be a valid text string.',
+            'email.email'  => 'Please enter a valid email address.',
+            'email.max'    => 'Email address must not exceed 255 characters.',
+            'email.unique' => 'This email address is already taken by another user.',
+
+            'password.string' => 'Password must be a valid text string.',
+            'password.min'    => 'Password must be at least 8 characters long.',
+
+            'role.in' => 'Role must be either "admin" or "hr".',
+        ];
+    }
 }

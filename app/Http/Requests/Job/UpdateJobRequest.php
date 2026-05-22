@@ -28,4 +28,25 @@ class UpdateJobRequest extends FormRequest
             'salary' => 'nullable|integer'
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'title.string' => 'Job title must be a valid text string.',
+            'title.max'    => 'Job title must not exceed 255 characters.',
+
+            'description.string' => 'Job description must be a valid text string.',
+
+            'requirments.string' => 'Job requirements must be a valid text string.',
+
+            'status.in' => 'Job status must be either "open" or "closed".',
+
+            'Location.in' => 'Job location must be one of: onsite, remote, or hybrid.',
+
+            'salary.integer' => 'Salary must be a valid number.',
+        ];
+    }
 }

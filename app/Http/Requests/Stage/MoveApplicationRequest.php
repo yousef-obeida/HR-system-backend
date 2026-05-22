@@ -26,4 +26,15 @@ class MoveApplicationRequest extends FormRequest
             'stage_id' => 'required|exists:stages,id'
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'stage_id.required' => 'A target stage is required to move the application.',
+            'stage_id.exists'   => 'The selected stage does not exist.',
+        ];
+    }
 }

@@ -28,4 +28,30 @@ class StoreJobRequest extends FormRequest
             'salary' => 'nullable|integer'
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     */
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'Job title is required.',
+            'title.string'   => 'Job title must be a valid text string.',
+            'title.max'      => 'Job title must not exceed 255 characters.',
+
+            'description.required' => 'Job description is required.',
+            'description.string'   => 'Job description must be a valid text string.',
+
+            'requirments.required' => 'Job requirements are required.',
+            'requirments.string'   => 'Job requirements must be a valid text string.',
+
+            'status.required' => 'Job status is required.',
+            'status.in'       => 'Job status must be either "open" or "closed".',
+
+            'Location.required' => 'Job location type is required.',
+            'Location.in'       => 'Job location must be one of: onsite, remote, or hybrid.',
+
+            'salary.integer' => 'Salary must be a valid number.',
+        ];
+    }
 }
