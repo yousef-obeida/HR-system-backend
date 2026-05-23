@@ -12,10 +12,12 @@ class CandidateController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $candidates = Candidate::with(['applications.stage', 'applications.interviews'])->get();
+            $query = Candidate::with(['applications.stage', 'applications.interviews']);
+            $query = \App\Filters\CandidateFilter::apply($query, $request);
+            $candidates = $query->get();
 
             return response()->json([
                 'success' => true,

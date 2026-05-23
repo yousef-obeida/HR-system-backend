@@ -13,10 +13,12 @@ class JobController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $jobs = Job::all();
+            $query = Job::query();
+            $query = \App\Filters\JobFilter::apply($query, $request);
+            $jobs = $query->get();
 
             return response()->json([
                 'success' => true,

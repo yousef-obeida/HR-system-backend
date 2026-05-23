@@ -13,10 +13,12 @@ class InterviewController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $interviews = Interview::with('application')->get();
+            $query = Interview::with('application');
+            $query = \App\Filters\InterviewFilter::apply($query, $request);
+            $interviews = $query->get();
 
             return response()->json([
                 'success' => true,

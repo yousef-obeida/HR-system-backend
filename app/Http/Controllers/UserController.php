@@ -19,7 +19,9 @@ class UserController extends Controller
         try {
             $this->authorize('viewAny', User::class);
 
-            $users = User::all();
+            $query = User::query();
+            $query = \App\Filters\UserFilter::apply($query, $request);
+            $users = $query->get();
 
             return response()->json([
                 'success' => true,

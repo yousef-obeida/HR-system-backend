@@ -13,10 +13,12 @@ class StageController extends Controller
     /**
      * Display a listing of the resource (Kanban view).
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $stages = Stage::with('applications.candidate')->get();
+            $query = Stage::with('applications.candidate');
+            $query = \App\Filters\StageFilter::apply($query, $request);
+            $stages = $query->get();
 
             return response()->json([
                 'success' => true,
