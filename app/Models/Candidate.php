@@ -18,4 +18,9 @@ class Candidate extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    public function analysis()
+    {
+        return $this->hasOne(CvAnalysis::class);
+    }
 }

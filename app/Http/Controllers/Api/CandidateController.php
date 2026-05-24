@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CvAnalysisResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Candidate;
@@ -59,4 +60,20 @@ class CandidateController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get the AI-generated CV analysis for a candidate.
+     */
+    public function analysis(Candidate $candidate)
+    {
+        if (!$candidate->analysis) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Analysis not found'
+            ], 404);
+        }
+
+        return new CvAnalysisResource($candidate->analysis);
+    }
 }
+

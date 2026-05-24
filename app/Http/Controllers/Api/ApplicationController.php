@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\AnalyzeCVJob;
 use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Stage;
@@ -105,6 +106,11 @@ class ApplicationController extends Controller
                 'stage_id' => $stage->id,
                 'status' => 'active',
             ]);
+
+            // Step 10 — Dispatch AI CV analysis job
+            if ($candidate->cv_path) {
+                AnalyzeCVJob::dispatch($candidate);
+            }
 
             return response()->json([
                 'success' => true,
