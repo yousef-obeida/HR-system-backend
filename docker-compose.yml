@@ -32,7 +32,10 @@ services:
     image: nginx:1.27-alpine
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8080}:80"
+      # Bind to the configured interface (localhost by default) so a host
+      # reverse proxy / TLS terminator can sit in front. Set APP_BIND=0.0.0.0
+      # to expose it directly.
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:80"
     volumes:
       - app-code:/var/www/html:ro
       - app-storage:/var/www/html/storage:ro
