@@ -7,6 +7,8 @@ use App\Models\Interview;
 use Illuminate\Http\Request;
 use App\Http\Requests\Interview\StoreInterviewRequest;
 use App\Http\Requests\Interview\UpdateInterviewRequest;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InterviewInvitationMail;
 
 class InterviewController extends Controller
 {
@@ -43,9 +45,16 @@ class InterviewController extends Controller
 
             $interview = Interview::create(array_merge($validated, ['status' => 'scheduled']));
 
+            // Send interview invitation email to the candidate
+            $interview->load('application.candidate', 'application.job');
+            if ($interview->application && $interview->application->candidate) {
+                Mail::to($interview->application->candidate->email)
+                    ->send(new InterviewInvitationMail($interview->application));
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Interview scheduled successfully.',
+                'message' => 'Interview scheduled successfully and invitation email sent.',
                 'data' => $interview
             ], 201);
         } catch (\Exception $e) {

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\StageController;
 use App\Http\Controllers\Api\DashboardController;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 Route::post('/login', function (Request $request) {
 
@@ -65,5 +66,6 @@ Route::get('/available-jobs', function () {
 
 Route::get('/apply', [ApplicationController::class, 'create']);
 Route::post('/apply/{job}', [ApplicationController::class, 'store']);
+
 
 

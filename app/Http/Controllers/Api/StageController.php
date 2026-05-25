@@ -7,6 +7,10 @@ use App\Models\Stage;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use App\Http\Requests\Stage\MoveApplicationRequest;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InterviewInvitationMail;
+use App\Mail\RejectionMail;
+use App\Mail\OfferMail;
 
 class StageController extends Controller
 {
@@ -46,14 +50,52 @@ class StageController extends Controller
             }
 
             $validated = $request->validated();
+            $newStageId = $validated['stage_id'];
+            
+            $stage = Stage::find($newStageId);
+            if (!$stage) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stage not found.'
+                ], 404);
+            }
+
+            $status = 'active';
+            if (strtolower($stage->name) === 'rejected') {
+                $status = 'rejected';
+            } elseif (strtolower($stage->name) === 'hired') {
+                $status = 'hired';
+            }
 
             $application->update([
-                'stage_id' => $validated['stage_id']
+                'stage_id' => $newStageId,
+                'status' => $status
             ]);
+
+            // Load candidate and job for the mail classes
+            $application->load(['candidate', 'job']);
+
+            if ($application->candidate) {
+                switch (strtolower($stage->name)) {
+                    case 'interview':
+                        Mail::to($application->candidate->email)
+                            ->send(new InterviewInvitationMail($application));
+                        break;
+                    case 'rejected':
+                        Mail::to($application->candidate->email)
+                            ->send(new RejectionMail($application));
+                        break;
+                    case 'offer':
+                    case 'hired':
+                        Mail::to($application->candidate->email)
+                            ->send(new OfferMail($application));
+                        break;
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Application moved successfully.',
+                'message' => 'Application moved successfully and email triggered.',
                 'data' => $application
             ]);
         } catch (\Exception $e) {

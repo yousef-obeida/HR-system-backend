@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             StageSeeder::class,
             UserSeeder::class,
+            JobSeeder::class,
         ]);
     }
 }

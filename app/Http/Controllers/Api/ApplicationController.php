@@ -10,6 +10,8 @@ use App\Models\Stage;
 use Illuminate\Http\Request;
 use App\Http\Requests\Application\StoreApplicationRequest;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationReceivedMail;
 
 class ApplicationController extends Controller
 {
@@ -106,6 +108,13 @@ class ApplicationController extends Controller
                 'stage_id' => $stage->id,
                 'status' => 'active',
             ]);
+
+            // Send Application Received email to candidate
+            $application->load(['candidate', 'job']);
+            if ($application->candidate) {
+                Mail::to($application->candidate->email)
+                    ->send(new ApplicationReceivedMail($application));
+            }
 
             // Step 10 — Dispatch AI CV analysis job
             if ($candidate->cv_path) {
