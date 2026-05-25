@@ -47,7 +47,13 @@ class AnalyzeCVJob implements ShouldQueue
             return;
         }
 
-        $text = Pdf::getText($cvFullPath);
+        try {
+            $binPath = config('services.pdftotext.path');
+            $text = Pdf::getText($cvFullPath, $binPath);
+        } catch (\Exception $e) {
+            Log::error("Failed to extract text using Spatie PdfToText for candidate #{$this->candidate->id}: {$e->getMessage()}");
+            return;
+        }
 
         if (empty(trim($text))) {
             Log::warning("No text extracted from CV for candidate #{$this->candidate->id}");
