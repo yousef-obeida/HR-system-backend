@@ -1,0 +1,55 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Environment / secrets
+.env
+.env.backup
+.env.production
+.env.*.local
+auth.json
+
+# Dependencies & build artifacts (rebuilt inside the image)
+vendor
+node_modules
+public/build
+public/hot
+public/storage
+
+# Local / dev tooling
+.idea
+.vscode
+.zed
+.nova
+.cursor
+.phpunit.cache
+.phpunit.result.cache
+.phpactor.json
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+
+# Logs & local data
+*.log
+storage/logs/*
+storage/pail
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+database/database.sqlite
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files themselves
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Tests & docs not needed at runtime
+tests
+README.md
+*.postman_collection.json
+*.postman_environment.json
