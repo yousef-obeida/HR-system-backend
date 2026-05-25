@@ -18,8 +18,17 @@ class User extends Authenticatable
 
     protected $primaryKey = 'user_id';
 
-    #[Fillable(['name', 'email', 'password', 'role'])]
-    #[Hidden(['password', 'remember_token'])]
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.

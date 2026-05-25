@@ -32,24 +32,24 @@ Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+// Shared routes: both admin and hr can access
+Route::middleware(['auth:sanctum', 'role:admin,hr'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
     Route::apiResource('candidates', CandidateController::class)->except(['store', 'update', 'destroy']);
     Route::get('candidates/{candidate}/analysis', [CandidateController::class, 'analysis']);
     Route::get('stages', [StageController::class, 'index']);
     Route::patch('applications/{id}/move', [StageController::class, 'moveApplication']);
-    Route::apiResource('users', \App\Http\Controllers\UserController::class);
 });
 
+// HR-only routes
 Route::middleware(['auth:sanctum', 'role:hr'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index']);
-    Route::apiResource('jobs', \App\Http\Controllers\Api\JobController::class);
-    Route::apiResource('candidates', CandidateController::class)->except(['store', 'update', 'destroy']);
-    Route::get('candidates/{candidate}/analysis', [CandidateController::class, 'analysis']);
     Route::apiResource('interviews', InterviewController::class);
-    Route::get('stages', [StageController::class, 'index']);
-    Route::patch('applications/{id}/move', [StageController::class, 'moveApplication']);
+});
+
+// Admin-only routes
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::apiResource('users', \App\Http\Controllers\UserController::class);
 });
 
 

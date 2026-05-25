@@ -57,7 +57,13 @@ class UserController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully.',
-                'data' => $user
+                'data' => [
+                    'id'         => $user->user_id,
+                    'name'       => $user->name,
+                    'email'      => $user->email,
+                    'role'       => $user->role,
+                    'created_at' => $user->created_at->toDateTimeString(),
+                ],
             ], 201);
         } catch (AuthorizationException $e) {
             return response()->json([
