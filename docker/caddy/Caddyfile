@@ -1,0 +1,16 @@
+# Caddy automatically provisions and renews a Let's Encrypt certificate for
+# the domain and reverse-proxies HTTPS traffic to the internal nginx service.
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	reverse_proxy nginx:80 {
+		# Forward the real protocol so Laravel (with trustProxies) builds
+		# correct HTTPS URLs. Caddy already sets X-Forwarded-For/Host.
+		header_up X-Forwarded-Proto {scheme}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

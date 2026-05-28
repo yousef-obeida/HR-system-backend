@@ -1,0 +1,133 @@
+services:
+  # ---------------------------------------------------------------------------
+  # PHP-FPM application server. Runs migrations + cache warming on start.
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: hr-system-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "true"
+    volumes:
+      # Persisted application code (seeded from the image — see deploy notes).
+      - app-code:/var/www/html
+      # Storage persists independently of code (uploaded CVs, logs, sessions).
+      - app-storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hr-net
+
+  # ---------------------------------------------------------------------------
+  # Nginx — public web entrypoint. Proxies PHP to the app container.
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      # Bind to the configured interface (localhost by default) so a host
+      # reverse proxy / TLS terminator can sit in front. Set APP_BIND=0.0.0.0
+      # to expose it directly.
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:80"
+    volumes:
+      - app-code:/var/www/html:ro
+      - app-storage:/var/www/html/storage:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - hr-net
+
+  # ---------------------------------------------------------------------------
+  # Queue worker — processes emails and AI CV analysis jobs.
+  # ---------------------------------------------------------------------------
+  queue:
+    image: hr-system-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "false"
+    command: php artisan queue:work --tries=3 --timeout=120 --sleep=3 --max-jobs=1000 --max-time=3600
+    volumes:
+      - app-code:/var/www/html
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - hr-net
+
+  # ---------------------------------------------------------------------------
+  # Scheduler — runs Laravel's scheduled tasks every minute.
+  # ---------------------------------------------------------------------------
+  scheduler:
+    image: hr-system-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      RUN_MIGRATIONS: "false"
+    command: php artisan schedule:work
+    volumes:
+      - app-code:/var/www/html
+      - app-storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    networks:
+      - hr-net
+
+  # ---------------------------------------------------------------------------
+  # MySQL database.
+  # ---------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-hr_system}
+      MYSQL_USER: ${DB_USERNAME:-hr_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-rootsecret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hr-net
+
+  # ---------------------------------------------------------------------------
+  # Redis — cache, sessions and (optionally) queue backend.
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - hr-net
+
+volumes:
+  app-code:
+  app-storage:
+  mysql-data:
+  redis-data:
+
+networks:
+  hr-net:
+    driver: bridge
