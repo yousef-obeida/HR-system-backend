@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Spatie\PdfToText\Pdf;
+use Smalot\PdfParser\Parser;
 
 class AnalyzeCVJob implements ShouldQueue
 {
@@ -48,10 +48,12 @@ class AnalyzeCVJob implements ShouldQueue
         }
 
         try {
-            $binPath = config('services.pdftotext.path');
-            $text = Pdf::getText($cvFullPath, $binPath);
-        } catch (\Exception $e) {
-            Log::error("Failed to extract text using Spatie PdfToText for candidate #{$this->candidate->id}: {$e->getMessage()}");
+            // smalot/pdfparser is a pure-PHP library, so CV text extraction works
+            // identically across platforms (Linux VPS, Windows dev) with no
+            // external binary dependency.
+            $text = (new Parser())->parseFile($cvFullPath)->getText();
+        } catch (\Throwable $e) {
+            Log::error("Failed to extract text from CV for candidate #{$this->candidate->id}: {$e->getMessage()}");
             return;
         }
 

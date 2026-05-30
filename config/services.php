@@ -35,8 +35,4 @@ return [
         ],
     ],
 
-    'pdftotext' => [
-        'path' => env('PDFTOTEXT_PATH', 'pdftotext'),
-    ],
-
 ];
