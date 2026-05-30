@@ -9,9 +9,6 @@ class InterviewFilter
 {
     public static function apply(Builder $query, Request $request): Builder
     {
-        if ($request->has('status')) {
-            $query->where('status', $request->input('status'));
-        }
 
         if ($request->has('interviewer')) {
             $query->where('interviewer', 'like', '%' . $request->input('interviewer') . '%');

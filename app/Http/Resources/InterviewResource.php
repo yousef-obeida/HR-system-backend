@@ -21,7 +21,6 @@ class InterviewResource extends JsonResource
             'time'           => $this->time,
             'interviewer'    => $this->interviewer,
             'type'           => $this->type,
-            'status'         => $this->status,
             'application'    => new ApplicationResource($this->whenLoaded('application')),
             'created_at'     => $this->created_at,
             'updated_at'     => $this->updated_at,

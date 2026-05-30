@@ -64,7 +64,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 Route::get('/available-jobs', function () {
     $jobs = \App\Models\Job::where('status', 'open')
-        ->pluck('title');
+        ->get(['id', 'title']);
 
     return response()->json([
         'success' => true,

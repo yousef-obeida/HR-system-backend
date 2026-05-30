@@ -11,10 +11,7 @@ class CandidateFilter
     {
         if ($request->has('name')) {
             $name = $request->input('name');
-            $query->where(function ($q) use ($name) {
-                $q->where('first_name', 'like', '%' . $name . '%')
-                    ->orWhere('last_name', 'like', '%' . $name . '%');
-            });
+            $query->where('full_name', 'like', '%' . $name . '%');
         }
 
         if ($request->has('email')) {

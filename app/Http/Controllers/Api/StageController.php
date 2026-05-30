@@ -8,9 +8,9 @@ use App\Models\Application;
 use Illuminate\Http\Request;
 use App\Http\Requests\Stage\MoveApplicationRequest;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\InterviewInvitationMail;
 use App\Mail\RejectionMail;
 use App\Mail\OfferMail;
+use App\Mail\HiredMail;
 
 class StageController extends Controller
 {
@@ -51,7 +51,7 @@ class StageController extends Controller
 
             $validated = $request->validated();
             $newStageId = $validated['stage_id'];
-            
+
             $stage = Stage::find($newStageId);
             if (!$stage) {
                 return response()->json([
@@ -77,18 +77,17 @@ class StageController extends Controller
 
             if ($application->candidate) {
                 switch (strtolower($stage->name)) {
-                    case 'interview':
-                        Mail::to($application->candidate->email)
-                            ->send(new InterviewInvitationMail($application));
-                        break;
                     case 'rejected':
                         Mail::to($application->candidate->email)
                             ->send(new RejectionMail($application));
                         break;
                     case 'offer':
-                    case 'hired':
                         Mail::to($application->candidate->email)
                             ->send(new OfferMail($application));
+                        break;
+                    case 'hired':
+                        Mail::to($application->candidate->email)
+                            ->send(new HiredMail($application));
                         break;
                 }
             }

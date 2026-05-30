@@ -38,6 +38,8 @@ class InterviewInvitationMail extends Mailable implements ShouldQueue
                 <p>
                 We will contact you soon with details.
                 </p>
+                
+                <p>Best regards,<br>Hireflow Recruitment Team</p>
             ");
     }
 }

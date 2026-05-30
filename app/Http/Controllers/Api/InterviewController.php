@@ -43,7 +43,7 @@ class InterviewController extends Controller
         try {
             $validated = $request->validated();
 
-            $interview = Interview::create(array_merge($validated, ['status' => 'scheduled']));
+            $interview = Interview::create($validated);
 
             // Send interview invitation email to the candidate
             $interview->load('application.candidate', 'application.job');
@@ -141,16 +141,11 @@ class InterviewController extends Controller
                 ], 404);
             }
 
-            // You can either delete it or mark it as cancelled.
-            // Let's mark as cancelled to keep the record.
-            $interview->update(['status' => 'cancelled']);
-
-            // If hard deletion is preferred instead:
-            // $interview->delete();
+            $interview->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Interview cancelled successfully.',
+                'message' => 'Interview deleted successfully.',
                 'data' => $interview
             ]);
         } catch (\Exception $e) {

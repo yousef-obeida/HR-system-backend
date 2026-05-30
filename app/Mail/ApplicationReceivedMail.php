@@ -22,9 +22,9 @@ class ApplicationReceivedMail extends Mailable implements ShouldQueue
             ->html("
                 <h2>Application Received</h2>
                 <p>Hello {$this->application->candidate->full_name},</p>
-                <p>Thank you for applying for the <strong>{$this->application->job->title}</strong> position at Smart-HR.</p>
+                <p>Thank you for applying for the <strong>{$this->application->job->title}</strong> position at Hireflow.</p>
                 <p>We have successfully received your CV and application details. Our HR team will review your profile and get back to you soon.</p>
-                <p>Best regards,<br>Smart-HR Recruitment Team</p>
+                <p>Best regards,<br>Hireflow Recruitment Team</p>
             ");
     }
 }

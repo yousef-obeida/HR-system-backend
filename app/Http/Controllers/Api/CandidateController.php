@@ -16,7 +16,7 @@ class CandidateController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Candidate::with(['applications.stage', 'applications.interviews']);
+            $query = Candidate::with(['applications.stage', 'applications.interviews', 'applications.job', 'analysis']);
             $query = \App\Filters\CandidateFilter::apply($query, $request);
             $candidates = $query->get();
 
@@ -39,7 +39,7 @@ class CandidateController extends Controller
     public function show(string $id)
     {
         try {
-            $candidate = Candidate::with(['applications.stage', 'applications.interviews'])->find($id);
+            $candidate = Candidate::with(['applications.stage', 'applications.interviews', 'applications.job', 'analysis'])->find($id);
 
             if (!$candidate) {
                 return response()->json([

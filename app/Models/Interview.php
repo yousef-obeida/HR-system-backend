@@ -11,8 +11,7 @@ class Interview extends Model
         'date',
         'time',
         'interviewer',
-        'type',
-        'status'
+        'type'
     ];
 
     public function application()

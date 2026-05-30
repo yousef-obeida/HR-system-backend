@@ -16,7 +16,7 @@ class JobController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Job::query();
+            $query = Job::with('applications');
             $query = \App\Filters\JobFilter::apply($query, $request);
             $jobs = $query->get();
 
@@ -63,7 +63,7 @@ class JobController extends Controller
     public function show(string $id)
     {
         try {
-            $job = Job::find($id);
+            $job = Job::with(['applications.candidate', 'applications.stage'])->find($id);
 
             if (!$job) {
                 return response()->json([
